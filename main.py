@@ -111,15 +111,12 @@ human = Human("Иван", 16, "Кто")"""
         self.mass = mass
 
     def prepare(self) -> float:
-        """Подготавливает еду к употреблению"""
         return self.calories
 
     def get_calories(self) -> float:
-        """Возвращает калории"""
         return self.calories
 
     def get_mass(self) -> float:
-        """Возвращет массу"""
         return self.mass
 
 class Bread(Ingridients):
@@ -155,8 +152,3 @@ def main():
     soup = Soup(200, 100, 0.5)
     tomato = Tomato(100, 100, "RED")
     cook([bread, soup, tomato])"""
-
-import asyncio
-
-class Timer:
-    def countdown(self, n: int, name: str):
