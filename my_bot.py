@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher, executor, types
 bot = Bot(token=Token)
 dp = Dispatcher(bot)
 
-user_id = []
+import requests
 
 url = 'https://api.thecatapi.com/v1/images/search'
 
