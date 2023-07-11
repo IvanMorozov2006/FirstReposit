@@ -6,8 +6,15 @@ from Config import Token
 
 from aiogram import Bot, Dispatcher, executor, types
 
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup
+
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
+
+button1 = KeyboardButton("чат 1 на 1")
+button2 = KeyboardButton("групповой чат")
+
+choose_chat = ReplyKeyboardMarkup(resize_keyboard=True).insert(button1).insert(button2)
 
 bot = Bot(token=Token)
 dp = Dispatcher(bot, storage=MemoryStorage())
@@ -31,7 +38,7 @@ async def name_message(message: types.Message, state: FSMContext):
 async def age_message(message: types.Message, state: FSMContext):
     age = message.text
     await state.update_data({"age": age})
-    await message.answer(f"Отлично, тебе {age} лет! Чтобы запустить бота напишите /find")
+    await message.answer(f"Отлично, тебе {age} лет! Как ты хочешь общаться?", reply_markup=choose_chat)
     await state.set_state("find")
 
 @dp.message_handler(commands=['find'], state="find")
