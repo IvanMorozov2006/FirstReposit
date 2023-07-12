@@ -7,7 +7,7 @@ import sys
 from aiogram import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 
-import strings as st
+import keyboards_question as st
 
 import asyncio
 

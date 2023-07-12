@@ -26,3 +26,4 @@ async def newgame_message(callback_query: types.CallbackQuery, message: types.Me
     await message.answer("Ваш ход")
     await callback_query.answer('+1')
 
+executor.start_polling(dp, skip_updates=True)

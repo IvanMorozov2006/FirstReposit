@@ -1,15 +1,8 @@
-# символы, которые используются
-SYMBOL_X = '❌'
-SYMBOL_O = '⭕'
-SYMBOL_UNDEF = '◻'
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, \
+                          InlineKeyboardButton, InlineKeyboardMarkup
 
-# ответы бота
-ANSW_YOUR_TURN = 'Ваш ход'
-ANSW_YOU_WIN = 'Вы победили'
-ANSW_BOT_WIN = 'Победил бот'
-ANSW_DRAW = 'Ничья'
-ANSW_HELP = 'Бот для игры в крестики-нолики\nСоздатель: @pashabezk\n\n' \
-            'Используйте команду /new_game для начала новой игры'
+click = InlineKeyboardButton("click 🧟", callback_data='click')
+double_click = InlineKeyboardButton("double-click 🧟‍♀️", callback_data='double-click')
+one_keyboard = InlineKeyboardMarkup().add(click)
 
-# ошибки
-ALERT_CANNOT_MOVE_TO_THIS_CELL = 'Нажимать можно только на ' + SYMBOL_UNDEF
+two_keyboard = InlineKeyboardMarkup().add(click).add(double_click)
