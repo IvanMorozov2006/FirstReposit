@@ -3,76 +3,42 @@ import random
 import sys
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler
+
+from aiogram import Bot, Dispatcher, executor, types
+
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup
+
+from aiogram.types import Message
+
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher import FSMContext
 
 import test as st
 
+from Config import Token
 
-# поиск токена для телеграмма
-def getToken():
-    token = ''
-    if os.path.isfile(st.BOT_TOKEN_FILENAME):
-        f = open(st.BOT_TOKEN_FILENAME, "r")
-        token = f.read()
-        f.close()
-    else:
-        print("Пожалуйста, создайте в папке проекта файл 'token.txt' и поместите туда токен для работы телеграм бота  и запустите скрипт заново")
-        sys.exit()  # завершить работу скрипта
-    return token
+bot = Bot(token=Token)
+dp = Dispatcher(bot, storage=MemoryStorage())
 
+@dp.message_handler(commands=['start'], state='*')
+async def start_message(message: types.Message, state: FSMContext):
+    await message.answer("Добро пожаловать в бота Крестики-Нолики!\nДля начала игры нажмите /newgame :)")
+    await state.set_state("newgame")
 
-# проверка на выигрыш
-# проверяет нет ли победной комбинации в строчках, столбцах или по диагонали
-# arr - массив
-# who - кого надо проверить: нужно передать значение 'х' или '0'
-def isWin(arr, who):
-    if (((arr[0] == who) and (arr[4] == who) and (arr[8] == who)) or
-            ((arr[2] == who) and (arr[4] == who) and (arr[6] == who)) or
-            ((arr[0] == who) and (arr[1] == who) and (arr[2] == who)) or
-            ((arr[3] == who) and (arr[4] == who) and (arr[5] == who)) or
-            ((arr[6] == who) and (arr[7] == who) and (arr[8] == who)) or
-            ((arr[0] == who) and (arr[3] == who) and (arr[6] == who)) or
-            ((arr[1] == who) and (arr[4] == who) and (arr[7] == who)) or
-            ((arr[2] == who) and (arr[5] == who) and (arr[8] == who))):
-        return True
-    return False
-
-
-# возвращает количество неопределенных ячеек (т.е. количество ячеек, в которые можно сходить)
-# cellArray - массив данных из callBackData, полученных после нажатия на callBack-кнопку
-def countUndefinedCells(cellArray):
-    counter = 0
-    for i in cellArray:
-        if i == st.SYMBOL_UNDEF:
-            counter += 1
-    return counter
-
-
-# callBackData формат:
-# n????????? - общее описание
-# n - номер кнопки
-# ? - один из вариантов значения клетки: смотри модуль strings, раздел "символы, которые используются"
-# пример: 5❌❌⭕⭕❌❌◻◻❌
-# означает, что была нажата пятая кнопка, и текущий вид поля:
-# ❌❌⭕
-# ⭕❌❌
-# ◻◻❌
-# данные обо всем состоянии поля необходимо помещать в кнопку, т.к. бот имеет доступ к информации только из текущего сообщения
-
-# игра: проверка возможности хода крестиком, проверка победы крестика, ход бота (ноликом), проверка победы ботом
-# возвращает:
-# message - сообщение, которое надо отправить
-# callBackData - данные для формирования callBack данных обновленного игрового поля
-def game(callBackData):
-    # -------------------------------------------------- global message  # использование глобальной переменной message
+@dp.message_handler(commands=['newgame'], state='newgame')
+async def start_message(message: types.Message, callBackData, state: FSMContext):
+    # global message  # использование глобальной переменной message
     message = st.ANSW_YOUR_TURN  # сообщение, которое вернется
     alert = None
 
     buttonNumber = int(callBackData[0])  # считывание нажатой кнопки, преобразуя ее из строки в число
     if not buttonNumber == 9:  # цифра 9 передается в первый раз в качестве заглушки. Т.е. если передана цифра 9, то клавиатура для сообщения создается впервые
-        charList = list(callBackData)  # строчка callBackData разбивается на посимвольный список "123" -> ['1', '2', '3']
+        charList = list(
+            callBackData)  # строчка callBackData разбивается на посимвольный список "123" -> ['1', '2', '3']
         charList.pop(0)  # удаление из списка первого элемента: который отвечает за выбор кнопки
-        if charList[buttonNumber] == st.SYMBOL_UNDEF:  # проверка: если в нажатой кнопке не выбран крестик/нолик, то можно туда сходить крестику
+        if charList[
+            buttonNumber] == st.SYMBOL_UNDEF:  # проверка: если в нажатой кнопке не выбран крестик/нолик, то можно туда сходить крестику
             charList[buttonNumber] = st.SYMBOL_X  # эмуляция хода крестика
             if isWin(charList, st.SYMBOL_X):  # проверка: выиграл ли крестик после своего хода
                 message = st.ANSW_YOU_WIN
@@ -112,6 +78,53 @@ def game(callBackData):
         callBackData = None  # обнуление callBackData
 
     return message, callBackData, alert
+
+
+# проверка на выигрыш
+# проверяет нет ли победной комбинации в строчках, столбцах или по диагонали
+# arr - массив
+# who - кого надо проверить: нужно передать значение 'х' или '0'
+def isWin(arr, who):
+    if (((arr[0] == who) and (arr[4] == who) and (arr[8] == who)) or
+            ((arr[2] == who) and (arr[4] == who) and (arr[6] == who)) or
+            ((arr[0] == who) and (arr[1] == who) and (arr[2] == who)) or
+            ((arr[3] == who) and (arr[4] == who) and (arr[5] == who)) or
+            ((arr[6] == who) and (arr[7] == who) and (arr[8] == who)) or
+            ((arr[0] == who) and (arr[3] == who) and (arr[6] == who)) or
+            ((arr[1] == who) and (arr[4] == who) and (arr[7] == who)) or
+            ((arr[2] == who) and (arr[5] == who) and (arr[8] == who))):
+        return True
+    return False
+
+
+# возвращает количество неопределенных ячеек (т.е. количество ячеек, в которые можно сходить)
+# cellArray - массив данных из callBackData, полученных после нажатия на callBack-кнопку
+def countUndefinedCells(cellArray):
+    count = 0
+    for i in cellArray:
+        if i == st.SYMBOL_UNDEF:
+            count += 1
+    return count
+
+
+# callBackData формат:
+# n????????? - общее описание
+# n - номер кнопки
+# ? - один из вариантов значения клетки: смотри модуль strings, раздел "символы, которые используются"
+# пример: 5❌❌⭕⭕❌❌◻◻❌
+# означает, что была нажата пятая кнопка, и текущий вид поля:
+# ❌❌⭕
+# ⭕❌❌
+# ◻◻❌
+# данные обо всем состоянии поля необходимо помещать в кнопку, т.к. бот имеет доступ к информации только из текущего сообщения
+
+# игра: проверка возможности хода крестиком, проверка победы крестика, ход бота (ноликом), проверка победы ботом
+# возвращает:
+# message - сообщение, которое надо отправить
+# callBackData - данные для формирования callBack данных обновленного игрового поля
+
+
+
 
 
 # Формат объекта клавиатуры
@@ -167,20 +180,8 @@ def button(update, _):
         query.answer(text=alert, show_alert=True)
 
 
-def help_command(update, _):
-    update.message.reply_text(st.ANSW_HELP)
-
-
-if __name__ == '__main__':
-    updater = Updater(getToken())  # получения токена из файла 'token.txt' и инициализация updater
-
     # добавление обработчиков
-    updater.dispatcher.add_handler(CommandHandler('start', newGame))
-    updater.dispatcher.add_handler(CommandHandler('new_game', newGame))
-    updater.dispatcher.add_handler(CommandHandler('help', help_command))
-    updater.dispatcher.add_handler(MessageHandler(Filters.text, help_command))  # обработчик на любое текстовое сообщение
     updater.dispatcher.add_handler(CallbackQueryHandler(button))  # добавление обработчика на CallBack кнопки
 
-    # Запуск бота
-    updater.start_polling()
-    updater.idle()
+# Запуск бота
+executor.start_polling(dp, skip_updates=True)
