@@ -7,7 +7,7 @@ User=ivan
 Group=ivan
 WorkingDirectory=/home/ivan/FirstReposit/
 Environment="PYTHONPATH=/home/ivan/FirstReposit/"
-ExecStart=/home/ivan/FirstReposit/.venv/bin/python /home/ivan/FirstReposit/kliker.py
+ExecStart=/home/ivan/FirstReposit/.venv/bin/python /home/ivan/FirstReposit/final_bot.py
 
 [Install]
 WantedBy=multi-user.target
