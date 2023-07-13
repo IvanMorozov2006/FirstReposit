@@ -22,7 +22,8 @@ def is_game_over(game_board):
                 return 'O'
 
     for col in range(len(game_board[0])):
-        if all(game_board[row][col] == game_board[0][col] and game_board[0][col] != " " for row in range(len(game_board))):
+        if all(game_board[row][col] == game_board[0][col] and game_board[0][col] != " " for row in
+               range(len(game_board))):
             if game_board[0][col] == 'X':
                 return 'X'
             else:
@@ -115,7 +116,7 @@ async def start(message: types.Message, state: FSMContext):
             buttons_row.append(types.InlineKeyboardButton(text=button_text, callback_data=button_callback))
         markup.row(*buttons_row)
 
-    await bot.send_message(message.chat.id, "Добро пожаловать в бота Крестики-Нолики!\nМожешь начать играть :)", reply_markup=markup)
+    await bot.send_message(message.chat.id, "Игра началась!", reply_markup=markup)
 
 
 executor.start_polling(dp, skip_updates=True)
