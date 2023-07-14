@@ -40,10 +40,8 @@ def is_game_over(game_board):
         if ' ' in game_board[i]:
             check = True
             break
-
     if check == False:
         return ' '
-
     return 'no'
 
 
@@ -56,7 +54,7 @@ async def make_move(callback_query: types.CallbackQuery, state: FSMContext):
     if s == 'no':
         if game_board[row][col] == ' ':
             player = "X"
-            bt = "O"
+            bot_player = "O"
 
             game_board = update_game_board(row, col, player, game_board)
             check = False
@@ -71,7 +69,7 @@ async def make_move(callback_query: types.CallbackQuery, state: FSMContext):
                 while game_board[row][col] != ' ':
                     row = random.randint(0, 2)
                     col = random.randint(0, 2)
-                game_board = update_game_board(row, col, bt, game_board)
+                game_board = update_game_board(row, col, bot_player, game_board)
 
             markup = types.InlineKeyboardMarkup(row_width=3)
             for i in range(3):
@@ -82,8 +80,7 @@ async def make_move(callback_query: types.CallbackQuery, state: FSMContext):
                     buttons_row.append(types.InlineKeyboardButton(text=button_text, callback_data=button_callback))
                 markup.row(*buttons_row)
             await state.update_data(game_board=game_board)
-            await bot.edit_message_reply_markup(callback_query.message.chat.id, callback_query.message.message_id,
-                                                reply_markup=markup)
+            await bot.edit_message_reply_markup(callback_query.message.chat.id, callback_query.message.message_id, reply_markup=markup)
 
             s = is_game_over(game_board)
             await state.update_data(s=s)
